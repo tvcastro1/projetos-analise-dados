@@ -2,10 +2,10 @@ import pandas as pd
 from pypodio2 import api
 from dataframe import retorna_dados_dos_demitidos
 
-CLIENT_ID = 'tablets'
-TOKEN = 'jQdHRUi7z0HxW7EL01PDj8HMqnFuV3oB2L8WwjmryxKUkR1TsmNs5G6UiLufnR9n'
-USER = 'vieira.thiago@parceiro.mrv.com.br'
-PASSWORD = '1Y!rqint'
+CLIENT_ID = ''
+TOKEN = ''
+USER = ''
+PASSWORD = ''
 
 dataframe_demitidos = pd.read_csv('demitidos.csv', dtype=str)
 dataframe_demitidos = dataframe_demitidos.drop_duplicates(subset=['Nome Funcionários'], keep='first')
