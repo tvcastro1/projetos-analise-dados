@@ -27,5 +27,5 @@ def extrai_email_chefia(row):
     return email_chefe
 
 if __name__ == '__main__':
-    demitido = retorna_dados_dos_demitidos('JESI MARTINS DE ALMEIDA')
+    demitido = retorna_dados_dos_demitidos('nome')
     print(demitido)
