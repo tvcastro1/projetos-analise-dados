@@ -9,6 +9,9 @@ __pycache__/
 #config files
 *ini
 
+#fontes de dados
+atuais.csv
+demitidos.csv
 # Distribution / packaging
 .Python
 build/
