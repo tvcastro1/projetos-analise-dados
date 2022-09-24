@@ -1,18 +1,11 @@
 import pandas as pd
-from pypodio2 import api
-from dataframe import retorna_dados_dos_demitidos
-
-CLIENT_ID = ''
-TOKEN = ''
-USER = ''
-PASSWORD = ''
+from dataframes import retorna_dados_dos_demitidos
 
 dataframe_demitidos = pd.read_csv('demitidos.csv', dtype=str)
 dataframe_demitidos = dataframe_demitidos.drop_duplicates(subset=['Nome Funcionários'], keep='first')
 
 
-
-class Demitidos(object):
+class Demitido(object):
 
     def __init__(self, nome=None, superior=None, dt_demissao=None, email_superior=None):
         self.nome = nome
@@ -30,7 +23,6 @@ class Demitidos(object):
 
 
 class Podio(object):
-    client = api.OAuthClient(CLIENT_ID, TOKEN, USER, PASSWORD)
 
     def __init__(self, nome, patrimonios):
         self.nome = nome
@@ -82,7 +74,7 @@ def iterar_dataframe():
     output = pd.DataFrame()
     for _, row in dataframe_demitidos.iterrows():
 
-        func_obj = Demitidos.verifica_demitido(row['Nome Funcionários'])
+        func_obj = Demitido.verifica_demitido(row['Nome Funcionários'])
         dict_a = func_obj.show_demitidos()
         eqpt = Podio.retorna_dicionario_equipamento_colaborador(func_obj.nome)
         dict_b = eqpt.show_podio()
