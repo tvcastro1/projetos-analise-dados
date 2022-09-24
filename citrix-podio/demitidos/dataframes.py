@@ -1,4 +1,5 @@
 import pandas as pd
+from sql import retorna_listagem_tablets, inicializa_cursor
 
 
 def retorna_dados_dos_demitidos(demitido):
@@ -26,6 +27,14 @@ def extrai_email_chefia(row):
     email_chefe = [val[0] for val in email_chefe.values()][0]
     return email_chefe
 
+def sql_to_dataframe(query):
+    df = pd.DataFrame(query.fetchall())
+    print(df)
+    print('Dataframe Montado')
+
+
 if __name__ == '__main__':
-    demitido = retorna_dados_dos_demitidos('nome')
-    print(demitido)
+    cursor = inicializa_cursor()
+    query = retorna_listagem_tablets(cursor)
+    sql_to_dataframe(query)
+
