@@ -1,6 +1,7 @@
 import pandas
 import pandas as pd
 from db_podio_conn import inicializa_cursor_sql_server
+from queries import QUERY_TABLETS
 import warnings
 
 # Ignora alerta pelo uso de pyodbc pelo Pandas
@@ -33,36 +34,14 @@ def extrai_email_chefia(row):
     return email_chefe
 
 
-def sql_to_dataframe(conn):
-    df_1 = pandas.read_sql("""SELECT
-  app_item_id,  
-  imei,
-  [patrimonio-novo],
-  modeloDesc,
-  serie,
-  [tipo-de-dispositivoDesc],
-  [nome-colaborador],
-  [sistema-utilizadoDesc],
-  statusDesc,
-  last_event_on
-FROM
-  [Podio].[ListarTabletsNovos] a
-WHERE
-  [last_event_on] = (
-    SELECT
-      MAX(last_event_on)
-    FROM
-      [Podio].[ListarTabletsNovos]
-    WHERE
-      app_item_id = a.app_item_id
-  )
-ORDER BY
-  [nome-colaborador] ASC""", conn)
-    print(df_1)
+def sql_to_dataframe():
+    conn = inicializa_cursor_sql_server()
+    dataframe_from_sql = pandas.read_sql(QUERY_TABLETS, conn)
     print('Dataframe Montado')
+    return dataframe_from_sql
 
 
 if __name__ == '__main__':
-    cursor = inicializa_cursor_sql_podio()
+    cursor = inicializa_cursor_sql_server()
     # query = retorna_listagem_tablets(conn)
-    sql_to_dataframe(cursor)
+    sql_to_dataframe()
