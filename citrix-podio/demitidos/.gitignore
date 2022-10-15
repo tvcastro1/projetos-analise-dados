@@ -12,6 +12,7 @@ __pycache__/
 #fontes de dados
 atuais.csv
 demitidos.csv
+*db
 
 # Distribution / packaging
 .Python
