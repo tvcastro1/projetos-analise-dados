@@ -60,6 +60,24 @@ def insert_values_to_table(table_name):
     else:
         print('Connection to database failed')
 
-if __name__ == '__main__':
-    insert_values_to_table('tablets')
 
+def get_entry():
+
+    conn = connect_to_db(DB_FILE_PATH)
+    if conn is not None:
+        c = conn.cursor()
+
+        c.execute("SELECT * FROM tablets")
+        results = c.fetchall()
+        return results
+    else:
+        print('Falha na conexão ao banco de dados')
+
+
+
+if __name__ == '__main__':
+    count = 0
+    for result in get_entry():
+        count += 1
+        print(result)
+    print(count)
