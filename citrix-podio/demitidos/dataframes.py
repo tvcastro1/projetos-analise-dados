@@ -18,8 +18,8 @@ def retorna_dados_dos_demitidos(demitido):
     # Extrai valores do dict_demitido
     nome, superior, dt_demissao = [val[0] for val in dict_demitido.values()]
     # Chama função para retornar email do chefe do demitido
-    email_chefe = extrai_email_chefia(row)
-    return nome, superior, dt_demissao, email_chefe
+    # email_chefe = extrai_email_chefia(row)
+    return nome, superior, dt_demissao
 
 
 def extrai_email_chefia(row):
