@@ -1,11 +1,14 @@
-import pandas
 import pandas as pd
 from db_podio_conn import inicializa_cursor_sql_server
 from queries import QUERY_TABLETS
 import warnings
+import logging
 
 # Ignora alerta pelo uso de pyodbc pelo Pandas
 warnings.filterwarnings('ignore')
+
+DATAFRAME_DEMITIDOS = pd.read_csv('demitidos.csv', dtype=str).drop_duplicates(subset=['Nome Funcionários'], keep='first')
+
 
 
 def retorna_dados_dos_demitidos(demitido):
@@ -18,8 +21,8 @@ def retorna_dados_dos_demitidos(demitido):
     # Extrai valores do dict_demitido
     nome, superior, dt_demissao = [val[0] for val in dict_demitido.values()]
     # Chama função para retornar email do chefe do demitido
-    # email_chefe = extrai_email_chefia(row)
-    return nome, superior, dt_demissao
+    email_chefe = extrai_email_chefia(row)
+    return nome, superior, dt_demissao, email_chefe
 
 
 def extrai_email_chefia(row):
@@ -28,15 +31,22 @@ def extrai_email_chefia(row):
     dataframe_chefia = dataframe_atuais[['NOMEFUNCIONARIO', 'EMAIL']].set_index('NOMEFUNCIONARIO'). \
         fillna('Sem e-mail cadastrado')
     # Atribui nome ao chefe e localiza o email do dataframe de funcionários ativos
-    chefe = row['Nome Superior']
-    email_chefe = dataframe_chefia.loc[chefe].to_dict('list')
-    email_chefe = [val[0] for val in email_chefe.values()][0]
-    return email_chefe
+    try:
+        chefe = row['Nome Superior']
+        email_chefe = dataframe_chefia.loc[chefe].to_dict('list')
+        email_chefe = [val[0] for val in email_chefe.values()][0]
+        return email_chefe
+    except Exception as err:
+        f = open("erros.txt", "a")
+        f.write(str(err))
+        f.close()
+        pass
+
 
 
 def sql_to_dataframe():
     conn = inicializa_cursor_sql_server()
-    dataframe_from_sql = pandas.read_sql(QUERY_TABLETS, conn)
+    dataframe_from_sql = pd.read_sql(QUERY_TABLETS, conn)
     print('Dataframe Montado')
     return dataframe_from_sql
 
