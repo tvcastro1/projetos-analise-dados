@@ -1,48 +1,25 @@
+import pandas as pd
 from demitidos import Demitido
 from podio import Tablet
-import pandas as pd
-import csv
 from db_local import get_entry
-from dataframes import retorna_dados_dos_demitidos
-
-dataframe_demitidos = pd.read_csv('demitidos.csv', dtype=str)
-dataframe_demitidos = dataframe_demitidos.drop_duplicates(subset=['Nome Funcionários'], keep='first')
+from dataframes import DATAFRAME_DEMITIDOS
 
 
-def demitido_init():
-    total = 0
-    csv_header = ['nome','dt_demissao','patrimonio']
-
-    for _, row in dataframe_demitidos.iterrows():
-        temp_list = []
+def to_csv():
+    df = pd.DataFrame()
+    for _, row in DATAFRAME_DEMITIDOS.iterrows():
         demitido = Demitido.verifica_demitido(row['Nome Funcionários'])
-        b = demitido.show_demitidos()
-        z = b['dt_demissao']
-        b = b['nome']
+        for entry in get_entry():
+            equipamento = Tablet(*entry)
+            if equipamento.utilizador == demitido.nome and equipamento.status == 'Com o colaborador':
+                dicio = {'demitido': demitido.nome, 'dt_demissao': demitido.dt_demissao,
+                         'patrimonio': equipamento.patrimonio, 'status': equipamento.status, 'email_chefe': demitido.
+                        email_superior}
+                df = df.append(dicio, ignore_index=True)
+                df.to_csv('teste.csv', encoding='utf-8', index=False)
+                print(df)
+                # print(f'Demitido {demitido.nome} em {demitido.dt_demissao}  com equipamento de patrimônio: '
+                #       f'{equipamento.patrimonio}, status: {equipamento.status}')
 
-        for list in get_entry():
-            myinst = Tablet(*list)
-            a = myinst.utilizador
-            c = myinst.patrimonio
-            y = myinst.status
-            if a == b and y == 'Com o colaborador':
-                # temp_list.append(b)
-                # temp_list.append(z)
-                # temp_list.append(c)
-                # with open('students.csv', 'w',newline='') as file:
-                #     writer = csv.writer(file, delimiter=",")
-                #     writer.writerow(csv_header)
-                #     # Use writerows() not writerow()
-                #     for linha in temp_list:
-                #         columns = [c.strip() for c in linha.strip(', ').split(',')]
-                #         writer.writerow(columns)
-                #     writer.writerow(temp_list)
-
-                print(f'Demitido {b} em {z}  com equipamento de patrimônio: {c}, status: {y}' )
-
-
-                total += 1
-    print(total)
-
-
-demitido_init()
+if __name__ == '__main__':
+    to_csv()
