@@ -27,9 +27,9 @@ def retorna_dados_dos_demitidos(demitido):
 
 def extrai_email_chefia(row):
     """Inicializa Dataframe chefia e retorna email do chefe"""
-    dataframe_atuais = pd.read_csv('atuais.csv', dtype=str)
+    dataframe_atuais = pd.read_csv('atuais1.csv', dtype=str)
     dataframe_chefia = dataframe_atuais[['NOMEFUNCIONARIO', 'EMAIL']].set_index('NOMEFUNCIONARIO'). \
-        fillna('Sem e-mail cadastrado')
+        fillna(0)
     # Atribui nome ao chefe e localiza o email do dataframe de funcionários ativos
     try:
         chefe = row['Nome Superior']
