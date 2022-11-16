@@ -2,14 +2,14 @@ import pandas as pd
 from demitidos import Demitido
 from podio import Tablet
 from db_local import get_entry
-from dataframes import DATAFRAME_DEMITIDOS
 from emailer import email_sender
 
+DATAFRAME_DEMITIDOS = pd.read_csv('demitidos.csv', dtype=str).drop_duplicates(subset=['Nome Funcionários'], keep='first')
 
 def to_csv():
     df = pd.DataFrame()
     for _, row in DATAFRAME_DEMITIDOS.iterrows():
-        demitido = Demitido.verifica_demitido(row['Nome Funcionários'])
+        demitido = Demitido.retorna_dados_dos_demitidos(row['Nome Funcionários'])
         for entry in get_entry():
             equipamento = Tablet(*entry)
             if equipamento.utilizador == demitido.nome and equipamento.status == 'Com o colaborador':
@@ -31,12 +31,13 @@ def to_email():
         for entry in get_entry():
             equipamento = Tablet(*entry)
             if equipamento.utilizador == demitido.nome and equipamento.status == 'Com o colaborador' \
-                    and demitido.email_superior != None:
+                    and demitido.email_superior is not None:
                 dicio = {'demitido': demitido.nome, 'dt_demissao': demitido.dt_demissao,
                          'patrimonio': equipamento.patrimonio, 'status': equipamento.status, 'email_chefe': demitido.
                         email_superior}
-                email_sender(dicio['email_chefe'], dicio['patrimonio'])
+                email_sender(demitido.email_superior, demitido.superior, demitido.nome, demitido.dt_demissao,
+                             equipamento.modelo, equipamento.patrimonio)
 
 
 if __name__ == '__main__':
-    to_email()
+    to_csv()

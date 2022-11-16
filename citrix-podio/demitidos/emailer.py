@@ -6,8 +6,8 @@ import requests
 import json
 from msal import PublicClientApplication
 
-APPLICATION_ID = ''
-CLIENT_SECRET = ''
+APPLICATION_ID = '31a4641c-9cae-4d30-a2d4-c104bf383785'
+CLIENT_SECRET = '5M78Q~QVl-rib2HqHVJ4xhRe-XWcGySwtZMgPbjz'
 authority_url = 'https://login.microsoftonline.com/common/'
 
 base_url = 'https://graph.microsoft.com/v1.0/'
@@ -28,7 +28,7 @@ SCOPES = ['User.Read', 'User.Export.All']
 # token_response = client.acquire_token_by_device_flow(flow)
 # print(token_response['access_token'])
 
-def email_sender(destinatario, equipamento):
+def email_sender(destinatario, nome_superior, nome_demitido, dt_demissao, modelo_equipamento, patrimonio_equipamento):
     # Create a preferably long-lived app instance which maintains a token cache.
     app = msal.PublicClientApplication(
         client_id=APPLICATION_ID,
@@ -42,7 +42,7 @@ def email_sender(destinatario, equipamento):
     result = None
 
     # Firstly, check the cache to see if this end user has signed in before
-    accounts = app.get_accounts(username='')
+    accounts = app.get_accounts(username='clnine@outlook.com')
     if accounts:
         logging.info("Account(s) exists in cache, probably with token too. Let's try.")
         print("Account(s) already signed in:")
@@ -60,7 +60,7 @@ def email_sender(destinatario, equipamento):
             # Only works if your app is registered with redirect_uri as http://localhost
             scopes=['Mail.Send'],
             # parent_window_handle=...,  # If broker is enabled, you will be guided to provide a window handle
-            login_hint='',  # Optional.
+            login_hint='clnine@outlook.com',  # Optional.
             # If you know the username ahead of time, this parameter can pre-fill
             # the username (or email address) field of the sign-in page for the user,
             # Often, apps use this parameter during reauthentication,
@@ -85,11 +85,13 @@ def email_sender(destinatario, equipamento):
                     }
                 ],
                 # email subject
-                'subject': 'Transferência de Equipamentos',
+                'subject': 'TESTE - Transferência de Equipamentos',
                 'importance': 'normal',
                 'body': {
                     'contentType': 'HTML',
-                    'content': f'<b>Funcionário demitido, favor transferir equipamento: {equipamento}</b>'
+                    'content': f'<b>Prezado {nome_superior}, \n ex-colaborador:{nome_demitido} desligado em '
+                               f'{dt_demissao}, favor 'f'transferir equipamento{modelo_equipamento},'
+                               f' patrimônio {patrimonio_equipamento}'f' para outro colaborador ativo</b>'
                 },
 
             }
@@ -135,4 +137,4 @@ def email_sender(destinatario, equipamento):
 
 
 if __name__ == '__main__':
-    email_sender('')
+    email_sender('thiagovieirac@gmail.com')

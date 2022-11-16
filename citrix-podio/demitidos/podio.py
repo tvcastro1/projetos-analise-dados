@@ -1,6 +1,7 @@
 # from pypodio2 import api
 # from config_parser import get_api_keys
 from dataclasses import dataclass
+from db_local import DB_FILE_PATH, connect_to_db, get_entry
 
 
 # def inicializador_podio():
@@ -21,6 +22,9 @@ class Tablet(object):
     sistema: str
     status: str
     last_event: str
+
+
+
 
 
 
