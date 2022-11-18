@@ -27,7 +27,7 @@ def to_email():
     x = 0
     df = pd.DataFrame()
     for _, row in DATAFRAME_DEMITIDOS.iterrows():
-        demitido = Demitido.verifica_demitido(row['Nome Funcionários'])
+        demitido = Demitido.retorna_dados_dos_demitidos(row['Nome Funcionários'])
         for entry in get_entry():
             equipamento = Tablet(*entry)
             if equipamento.utilizador == demitido.nome and equipamento.status == 'Com o colaborador' \
@@ -40,4 +40,4 @@ def to_email():
 
 
 if __name__ == '__main__':
-    to_csv()
+    to_email()

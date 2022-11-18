@@ -28,11 +28,12 @@ SCOPES = ['User.Read', 'User.Export.All']
 # token_response = client.acquire_token_by_device_flow(flow)
 # print(token_response['access_token'])
 
-def email_sender(destinatario, nome_superior, nome_demitido, dt_demissao, modelo_equipamento, patrimonio_equipamento):
-    # Create a preferably long-lived app instance which maintains a token cache.
-    app = msal.PublicClientApplication(
-        client_id=APPLICATION_ID,
-        authority=authority_url
+def email_sender(destinatario, nome_superior=None, nome_demitido=None, dt_demissao=None, modelo_equipamento=None, patrimonio_equipamento=None):
+    f = open('parameters.json')
+    config = json.load(f)
+    app = msal.ConfidentialClientApplication(
+        config["client_id"], authority=config["authority"],
+        client_credential=config["secret"],
         # token_cache=...  # Default cache is in memory only.
         # You can learn how to use SerializableTokenCache from
         # https://msal-python.rtfd.io/en/latest/#msal.SerializableTokenCache
@@ -41,37 +42,14 @@ def email_sender(destinatario, nome_superior, nome_demitido, dt_demissao, modelo
     # The pattern to acquire a token looks like this.
     result = None
 
-    # Firstly, check the cache to see if this end user has signed in before
-    accounts = app.get_accounts(username='clnine@outlook.com')
-    if accounts:
-        logging.info("Account(s) exists in cache, probably with token too. Let's try.")
-        print("Account(s) already signed in:")
-        for a in accounts:
-            print(a["username"])
-        chosen = accounts[0]  # Assuming the end user chose this one to proceed
-        print("Proceed with account: %s" % chosen["username"])
-        # Now let's try to find a token in cache for this account
-        result = app.acquire_token_silent(scopes=['Mail.Send'], account=chosen)
+    # Firstly, looks up a token from cache
+    # Since we are looking for token for the current app, NOT for an end user,
+    # notice we give account parameter as None.
+    result = app.acquire_token_silent(config["scope"], account=None)
 
     if not result:
         logging.info("No suitable token exists in cache. Let's get a new one from AAD.")
-        print("A local browser window will be open for you to sign in. CTRL+C to cancel.")
-        result = app.acquire_token_interactive(
-            # Only works if your app is registered with redirect_uri as http://localhost
-            scopes=['Mail.Send'],
-            # parent_window_handle=...,  # If broker is enabled, you will be guided to provide a window handle
-            login_hint='clnine@outlook.com',  # Optional.
-            # If you know the username ahead of time, this parameter can pre-fill
-            # the username (or email address) field of the sign-in page for the user,
-            # Often, apps use this parameter during reauthentication,
-            # after already extracting the username from an earlier sign-in
-            # by using the preferred_username claim from returned id_token_claims.
-
-            # prompt=msal.Prompt.SELECT_ACCOUNT,  # Or simply "select_account". Optional. It forces to show account selector page
-            # prompt=msal.Prompt.CREATE,  # Or simply "create". Optional. It brings user to a self-service sign-up flow.
-            # Prerequisite: https://docs.microsoft.com/en-us/azure/active-directory/external-identities/self-service-sign-up-user-flow
-        )
-
+        result = app.acquire_token_for_client(scopes=config["scope"])
     if "access_token" in result:
         # Calling graph using the access token
         request_body = {
@@ -96,14 +74,10 @@ def email_sender(destinatario, nome_superior, nome_demitido, dt_demissao, modelo
 
             }
         }
-        graph_response = requests.post('https://graph.microsoft.com/v1.0/me/sendMail',
+        graph_response = requests.post(config['endpoint'],
                                        headers={'Authorization': 'Bearer ' + result['access_token']}, json=request_body)
-
-        print(graph_response.text)
-        # graph_response = requests.get(  # Use token to call downstream service
-        #     'https://graph.microsoft.com/v1.0/me/onenote/notebooks',
-        #     headers={'Authorization': 'Bearer ' + result['access_token']},)
-        # print(graph_response.text)
+        print("Graph API call result: ")
+        print(graph_response)
     else:
         print(result.get("error"))
         print(result.get("error_description"))

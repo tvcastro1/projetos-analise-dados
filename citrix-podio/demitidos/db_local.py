@@ -68,14 +68,16 @@ def get_entry():
         c = conn.cursor()
 
         c.execute("SELECT * FROM tablets")
-        results = c.fetchone()
-        yield results
+        results = c.fetchall()
+        return results
     else:
         print('Falha na conexão ao banco de dados')
 
 
 
 if __name__ == '__main__':
-    for row in get_entry():
-        print(row)
-
+    count = 0
+    for result in get_entry():
+        count += 1
+        print(result)
+    print(count)

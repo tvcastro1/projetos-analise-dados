@@ -42,20 +42,6 @@ class Demitido(object):
             pass
 
 
-@dataclass
-class Tablet(object):
-    item_id: int
-    imei: str
-    patrimonio: str
-    modelo: str
-    serie: str
-    tipo: str
-    utilizador: str
-    sistema: str
-    status: str
-    last_event: str
-
-
 if __name__ == '__main__':
     obj = Demitido.retorna_dados_dos_demitidos('ADRIANA FERRAZ DA SILVEIRA NERVETTI')
     print(obj)
