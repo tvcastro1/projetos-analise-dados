@@ -28,10 +28,20 @@ class DataManipulation(object):
         df_demitidos = DataManipulation.__csv_demitidos_para_df()
         df_atuais = DataManipulation.__csv_atuais_para_df()
         df_podio_tablets = DataManipulation.__sql_query_podio_tablets_para_df()
-        df_merged_demitidos = pd.merge(df_demitidos, df_atuais, how='left', left_on='Nome Funcionários',
-                                    right_on='NOMEFUNCIONARIO').fillna('None')
+        df_merged_demitidos = pd.merge(df_demitidos, df_atuais, how='left', left_on='Nome Superior',
+                                       right_on='NOMEFUNCIONARIO', indicator=True)
         df_merged_demitidos_podio_tablets = pd.merge(df_merged_demitidos, df_podio_tablets, how='inner',
                                                      left_on='Nome Funcionários', right_on='nome-colaborador')
+        df_merged_demitidos_podio_tablets.drop_duplicates(subset=['patrimonio-novo'], keep='first', inplace=True)
+        df_merged_demitidos_podio_tablets = df_merged_demitidos_podio_tablets[['Nome Funcionários', 'Data Demissão',
+                                                                               'Nome Superior', 'EMAIL',
+                                                                               'patrimonio-novo', 'modeloDesc',
+                                                                               'statusDesc']]
+        df_merged_demitidos_podio_tablets = df_merged_demitidos_podio_tablets.rename \
+            (columns={'Nome Funcionários': 'nome_funcionarios', 'Data Demissão': 'data_demissao',
+                      'Nome Superior': 'nome_superior',
+                      'EMAIL': 'email', 'patrimonio-novo': 'patrimonio_novo', 'modeloDesc': 'modelo_desc',
+                      'statusDesc': 'status_desc'})
         return df_merged_demitidos_podio_tablets
 
     @staticmethod
@@ -46,8 +56,7 @@ class DataManipulation(object):
     def __csv_atuais_para_df() -> pd.DataFrame:
         """Inicializa dataframe atuais e retorna df"""
         big_atuais = pd.read_csv('atuais.csv', dtype=str)
-        big_atuais = big_atuais[['NOMEFUNCIONARIO', 'EMAIL']].set_index('NOMEFUNCIONARIO'). \
-            fillna(0)
+        big_atuais = big_atuais[['NOMEFUNCIONARIO', 'EMAIL']]
         return big_atuais
 
     @staticmethod
@@ -58,6 +67,7 @@ class DataManipulation(object):
 
     def save_to_csv(self):
         self.df_demitidos.to_excel('dfteste.xlsx', encoding='utf-8')
+
 
 if __name__ == '__main__':
     obj = DataManipulation()
